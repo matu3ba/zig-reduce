@@ -1,5 +1,7 @@
 const std = @import("std");
 const File = std.io.File;
+const render = @import("render.zig");
+const cust_ast = @import("cust_ast.zig");
 
 // 0. build up data structure to know status
 // 1. compile file (ie for testing, etc)
@@ -55,9 +57,9 @@ pub fn main() anyerror!void {
     // => rely on renderer and do operations on Ast.
 
     var cnt_testdecls: u16 = 0;
-    const tree_decls = tree.rootDecls();
-    for (tree_decls) |tree_decl| {
-        switch (tree.nodes.items(.tag)[tree_decl]) {
+    const tree_rootdecls = tree.rootDecls();
+    for (tree_rootdecls) |tree_rootdecl| {
+        switch (tree.nodes.items(.tag)[tree_rootdecl]) {
             .test_decl => {
                 cnt_testdecls += 1;
             },
@@ -70,8 +72,8 @@ pub fn main() anyerror!void {
     defer arena.free(test_decl_indeces);
     {
         var next_index: u16 = 0;
-        for (tree_decls) |tree_decl, i| {
-            switch (tree.nodes.items(.tag)[tree_decl]) {
+        for (tree_rootdecls) |tree_rootdecl, i| {
+            switch (tree.nodes.items(.tag)[tree_rootdecl]) {
                 .test_decl => {
                     test_decl_indeces[next_index] = @intCast(u16, i);
                     next_index += 1;
@@ -83,7 +85,11 @@ pub fn main() anyerror!void {
     for (test_decl_indeces) |i|
         std.debug.print("i: {d}\n", .{i});
 
+    const rendered_ast_cust = try cust_ast.renderCustom(tree, arena);
+    defer arena.free(rendered_ast_cust);
+    std.debug.print("tree:\n{s}", .{rendered_ast_cust});
+
     // option 1: delete blocks (Ast has no mark to delete stuff) => nope
     // option 2: ignore specific top level decl during rendering
-    // TODO check source for ast-check
+    // option 3: copy-paste rendering code
 }
