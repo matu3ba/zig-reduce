@@ -81,15 +81,23 @@ pub fn main() anyerror!void {
                 else => {},
             }
         }
+        // TODO analyze inner blocks
     }
     for (test_decl_indeces) |i|
         std.debug.print("i: {d}\n", .{i});
 
-    const rendered_ast_cust = try cust_ast.renderCustom(tree, arena);
+    const rendered_ast_cust = try cust_ast.renderCustom(tree, arena, test_decl_indeces);
     defer arena.free(rendered_ast_cust);
     std.debug.print("tree:\n{s}", .{rendered_ast_cust});
 
     // option 1: delete blocks (Ast has no mark to delete stuff) => nope
     // option 2: ignore specific top level decl during rendering
-    // option 3: copy-paste rendering code
+    // => option 3: copy-paste rendering code + adjust it
+    // use m-tree to represent code sections that must be skipped
+    // NOTE: m-tree can not be used for overlapping segments
+    // TODO fixup render.zig to provide a trackable id for each block
+    // TODO think about how to tell render.zig what parts blocks to ignore
+
+    // test blocks: .test_decl
+    // usingnamespace:
 }
