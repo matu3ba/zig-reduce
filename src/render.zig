@@ -15,6 +15,8 @@ pub const Error = Ast.RenderError;
 
 const Ais = AutoIndentingStream(std.ArrayList(u8).Writer);
 
+pub var next_tree_i: u32 = undefined; // DEBUG
+
 pub fn renderTree(buffer: *std.ArrayList(u8), tree: Ast) Error!void {
     assert(tree.errors.len == 0); // Cannot render an invalid tree.
     var auto_indenting_stream = Ais{
@@ -49,6 +51,8 @@ pub fn renderMembers(gpa: Allocator, ais: *Ais, tree: Ast, members: []const Ast.
 }
 
 pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, space: Space) Error!void {
+    try ais.writer().print("\nntree_i: {d}\n", .{next_tree_i});
+    next_tree_i += 1;
     const token_tags = tree.tokens.items(.tag);
     const main_tokens = tree.nodes.items(.main_token);
     const datas = tree.nodes.items(.data);

@@ -48,47 +48,60 @@ pub fn main() anyerror!void {
 
     var tree = try std.zig.parse(arena, source);
     defer tree.deinit(arena);
-    // print tree block start+end
-    const rendered_ast = try tree.render(arena);
+
+    render.next_tree_i = 1; // initialize for children
+
+    // print tree with libstd
+    //const rendered_ast = try tree.render(arena);
+    //defer arena.free(rendered_ast);
+    //std.debug.print("tree:\n{s}", .{rendered_ast});
+
+    const rendered_ast = try cust_ast.renderNormal(tree, arena);
     defer arena.free(rendered_ast);
     std.debug.print("tree:\n{s}", .{rendered_ast});
 
     // problem: render.zig is not referenced from std.zig
     // => rely on renderer and do operations on Ast.
 
-    var cnt_testdecls: u16 = 0;
-    const tree_rootdecls = tree.rootDecls();
-    for (tree_rootdecls) |tree_rootdecl| {
-        switch (tree.nodes.items(.tag)[tree_rootdecl]) {
-            .test_decl => {
-                cnt_testdecls += 1;
-            },
-            else => {},
-        }
-    }
-    std.debug.print("cnt_testdecls: {d}\n", .{cnt_testdecls});
+    // TODO
+    // 1. implement DFS traversal from rendering (stack, set)
+    // 2. figure out if renderMember is sufficient
+    //    - try to remove all writer commands
+    //    - simplify traversing logic
+    //    - more stuff?
 
-    var test_decl_indeces = try arena.alloc(u16, cnt_testdecls);
-    defer arena.free(test_decl_indeces);
-    {
-        var next_index: u16 = 0;
-        for (tree_rootdecls) |tree_rootdecl, i| {
-            switch (tree.nodes.items(.tag)[tree_rootdecl]) {
-                .test_decl => {
-                    test_decl_indeces[next_index] = @intCast(u16, i);
-                    next_index += 1;
-                },
-                else => {},
-            }
-        }
-        // TODO analyze inner blocks
-    }
-    for (test_decl_indeces) |i|
-        std.debug.print("i: {d}\n", .{i});
+    //var cnt_testdecls: u16 = 0;
+    //const tree_rootdecls = tree.rootDecls();
+    //for (tree_rootdecls) |tree_rootdecl| {
+    //    switch (tree.nodes.items(.tag)[tree_rootdecl]) {
+    //        .test_decl => {
+    //            cnt_testdecls += 1;
+    //        },
+    //        else => {},
+    //    }
+    //}
+    //std.debug.print("cnt_testdecls: {d}\n", .{cnt_testdecls});
 
-    const rendered_ast_cust = try cust_ast.renderCustom(tree, arena, test_decl_indeces);
-    defer arena.free(rendered_ast_cust);
-    std.debug.print("tree:\n{s}", .{rendered_ast_cust});
+    //var test_decl_indeces = try arena.alloc(u16, cnt_testdecls);
+    //defer arena.free(test_decl_indeces);
+    //{
+    //    var next_index: u16 = 0;
+    //    for (tree_rootdecls) |tree_rootdecl, i| {
+    //        switch (tree.nodes.items(.tag)[tree_rootdecl]) {
+    //            .test_decl => {
+    //                test_decl_indeces[next_index] = @intCast(u16, i);
+    //                next_index += 1;
+    //            },
+    //            else => {},
+    //        }
+    //    }
+    //    // TODO analyze inner blocks
+    //}
+    //for (test_decl_indeces) |i|
+    //    std.debug.print("i: {d}\n", .{i});
+    //const rendered_ast_cust = try cust_ast.renderCustom(tree, arena, test_decl_indeces);
+    //defer arena.free(rendered_ast_cust);
+    //std.debug.print("tree:\n{s}", .{rendered_ast_cust});
 
     // option 1: delete blocks (Ast has no mark to delete stuff) => nope
     // option 2: ignore specific top level decl during rendering

@@ -9,6 +9,14 @@ const asm_indent_delta = 2;
 const Error = Ast.RenderError;
 const Ais = render.AutoIndentingStream(std.ArrayList(u8).Writer);
 
+pub fn renderNormal(tree: Ast, gpa: mem.Allocator) Error![]u8 {
+    var buffer = std.ArrayList(u8).init(gpa);
+    defer buffer.deinit();
+
+    try render.renderTree(&buffer, tree);
+    return buffer.toOwnedSlice();
+}
+
 pub fn renderCustom(tree: Ast, gpa: mem.Allocator, skiplist: []u16) Error![]u8 {
     var buffer = std.ArrayList(u8).init(gpa);
     defer buffer.deinit();
