@@ -31,7 +31,10 @@ pub fn main() anyerror!void {
     // and ReleaseSafe build modes.
     //std.log.info("All your codebase are belong to us.", .{});
 
-    const file_name = "test/min.zig";
+    //const file_name = "test/min.zig";
+    //const file_name = "test/min_fields.zig";
+    //const file_name = "test/min_asgnblock.zig";
+    const file_name = "test/while.zig";
     var f = std.fs.cwd().openFile(file_name, .{}) catch |err| {
         fatal("unable to open file for zig-reduce '{s}': {s}", .{ file_name, @errorName(err) });
     };
@@ -60,15 +63,16 @@ pub fn main() anyerror!void {
     defer arena.free(rendered_ast);
     std.debug.print("tree:\n{s}", .{rendered_ast});
 
-    // problem: render.zig is not referenced from std.zig
-    // => rely on renderer and do operations on Ast.
-
+    // observation: render.zig uses DFS to traverse nodes
     // TODO
-    // 1. implement DFS traversal from rendering (stack, set)
-    // 2. figure out if renderMember is sufficient
-    //    - try to remove all writer commands
-    //    - simplify traversing logic
-    //    - more stuff?
+    // 1. fill m tree with block data
+    // 2. dont render specific block
+    // 3. write the block info into the field for the count
+    //    of children
+
+    // if we are struct, fn or test, the we can get
+    // the children somehow!
+    // => use counter etc
 
     //var cnt_testdecls: u16 = 0;
     //const tree_rootdecls = tree.rootDecls();

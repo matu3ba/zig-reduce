@@ -51,7 +51,7 @@ pub fn renderMembers(gpa: Allocator, ais: *Ais, tree: Ast, members: []const Ast.
 }
 
 pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, space: Space) Error!void {
-    try ais.writer().print("\nntree_i: {d}\n", .{next_tree_i});
+    //try ais.writer().print("\nntree_i (member): {d}\n", .{next_tree_i});
     next_tree_i += 1;
     const token_tags = tree.tokens.items(.tag);
     const main_tokens = tree.nodes.items(.main_token);
@@ -59,6 +59,7 @@ pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, 
     try renderDocComments(ais, tree, tree.firstToken(decl));
     switch (tree.nodes.items(.tag)[decl]) {
         .fn_decl => {
+            try ais.writer().print("\nntree_i (fn_decl): {d}\n", .{next_tree_i});
             // Some examples:
             // pub extern "foo" fn ...
             // export fn ...
@@ -110,6 +111,7 @@ pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, 
         .fn_proto_one,
         .fn_proto,
         => {
+            try ais.writer().print("\nntree_i (fn_proto): {d}\n", .{next_tree_i});
             // Extern function prototypes are parsed as these tags.
             // Go back to the first token we should render here.
             const fn_token = main_tokens[decl];
@@ -139,6 +141,7 @@ pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, 
         },
 
         .@"usingnamespace" => {
+            try ais.writer().print("\nntree_i (usingnamespace): {d}\n", .{next_tree_i});
             const main_token = main_tokens[decl];
             const expr = datas[decl].lhs;
             if (main_token > 0 and token_tags[main_token - 1] == .keyword_pub) {
@@ -155,6 +158,7 @@ pub fn renderMember(gpa: Allocator, ais: *Ais, tree: Ast, decl: Ast.Node.Index, 
         .aligned_var_decl => return renderVarDecl(gpa, ais, tree, tree.alignedVarDecl(decl)),
 
         .test_decl => {
+            try ais.writer().print("\nntree_i (test_decl): {d}\n", .{next_tree_i});
             const test_token = main_tokens[decl];
             try renderToken(ais, tree, test_token, .space);
             const test_name_tag = token_tags[test_token + 1];
@@ -185,6 +189,7 @@ fn renderExpressions(gpa: Allocator, ais: *Ais, tree: Ast, expressions: []const 
 }
 
 fn renderExpression(gpa: Allocator, ais: *Ais, tree: Ast, node: Ast.Node.Index, space: Space) Error!void {
+    //try ais.writer().print("\nntree_i (expression): {d}\n", .{next_tree_i});
     const token_tags = tree.tokens.items(.tag);
     const main_tokens = tree.nodes.items(.main_token);
     const node_tags = tree.nodes.items(.tag);
@@ -932,6 +937,7 @@ fn renderAsmInput(
 }
 
 fn renderVarDecl(gpa: Allocator, ais: *Ais, tree: Ast, var_decl: Ast.full.VarDecl) Error!void {
+    try ais.writer().print("\nntree_i (VarDecl): {d}\n", .{next_tree_i});
     if (var_decl.visib_token) |visib_token| {
         try renderToken(ais, tree, visib_token, Space.space); // pub
     }
@@ -1166,6 +1172,7 @@ fn renderContainerField(
     field: Ast.full.ContainerField,
     space: Space,
 ) Error!void {
+    try ais.writer().print("\nntree_i (containerField): {d}\n", .{next_tree_i});
     if (field.comptime_token) |t| {
         try renderToken(ais, tree, t, .space); // comptime
     }
